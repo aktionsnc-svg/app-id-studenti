@@ -1,0 +1,13 @@
+{
+  "name": "app-id-studenti",
+  "version": "1.0.0",
+  "description": "Mini app per ottenere ID studenti",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "express": "^4.19.0"
+  }
+}
