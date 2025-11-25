@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Accesso ID Studente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <div class="card">
+        <h1 class="app-title">Accesso area studenti</h1>
+        <p class="subtitle">
+          Inserisci la tua email scolastica per ottenere il tuo ID personale.
+        </p>
+
+        <form id="emailForm" autocomplete="off" novalidate>
+          <label for="email" class="label">Email scolastica</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="input"
+            placeholder="nome.cognome@scuola.it"
+            required
+          />
+          <button type="submit" class="button">Ottieni ID</button>
+        </form>
+
+        <div id="message" class="message" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("emailForm");
+      const messageDiv = document.getElementById("message");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const emailInput = document.getElementById("email");
+        const email = emailInput.value.trim();
+
+        if (!email) {
+          showMessage("Inserisci una email valida.", "error");
+          return;
+        }
+
+        showMessage("Verifica in corso...", "info");
+
+        try {
+          const response = await fetch("/api/registrazione", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email })
+          });
+
+          const data = await response.json();
+
+          // Gestione delle risposte da n8n
+          switch (data.status) {
+            case "ok":
+              // ID mostrato in modo discreto
+              showMessage(
+                `<span class="label-id">ID personale:</span> <span class="id-code">${data.id_studente}</span>`,
+                "success",
+                true
+              );
+              break;
+
+            case "unknown-email":
+              showMessage("Email non presente negli elenchi.", "error");
+              break;
+
+            case "already-registered":
+              showMessage("Email già registrata.", "info");
+              break;
+
+            case "error":
+            default:
+              showMessage("Si è verificato un errore.", "error");
+              break;
+          }
+        } catch (err) {
+          console.error(err);
+          showMessage("Si è verificato un errore.", "error");
+        }
+      });
+
+      function showMessage(text, type = "info", isHtml = false) {
+        messageDiv.className = "message"; // reset
+        messageDiv.classList.add(`message-${type}`);
+        if (isHtml) {
+          messageDiv.innerHTML = text;
+        } else {
+          messageDiv.textContent = text;
+        }
+      }
+    </script>
+  </body>
+</html>
